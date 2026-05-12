@@ -6,6 +6,7 @@ import com.bank.api.repository.CustomerRepository;
 import com.bank.api.service.CustomerService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,21 +18,29 @@ public class CustomerServiceImpl implements CustomerService {
         this.customerRepository = customerRepository;
     }
 
+    // ✅ Create customer
     @Override
     public Customer createCustomer(Customer customer) {
+        customer.setStatus(CustomerStatus.ACTIVE);
+        customer.setCreatedAt(LocalDateTime.now());
         return customerRepository.save(customer);
     }
 
+    // ✅ Get customer by ID
     @Override
     public Customer getCustomerById(Long id) {
-        return customerRepository.findById(id).orElseThrow();
+        return customerRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Customer not found with id: " + id)
+        );
     }
 
+    // ✅ Get all customers
     @Override
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
     }
 
+    // ✅ Deactivate customer
     @Override
     public void deactivateCustomer(Long id) {
         Customer customer = getCustomerById(id);

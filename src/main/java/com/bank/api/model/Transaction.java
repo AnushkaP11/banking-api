@@ -1,5 +1,6 @@
 package com.bank.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,25 +14,19 @@ public class Transaction {
     private Long txnId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private TransactionType type;
 
-    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
-
-    @Column(length = 255)
     private String description;
-
-    @Column(nullable = false, updatable = false)
     private LocalDateTime txnDate;
 
+    // ✅ FINAL FIX
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
+    @JsonIgnoreProperties({"customer", "hibernateLazyInitializer", "handler"})
     private Account account;
 
-    protected Transaction() {
-        // JPA requirement
-    }
+    public Transaction() {}
 
     public Transaction(TransactionType type,
                        BigDecimal amount,
@@ -43,4 +38,11 @@ public class Transaction {
         this.account = account;
         this.txnDate = LocalDateTime.now();
     }
+
+    // ✅ Getters (IMPORTANT)
+    public Long getTxnId() { return txnId; }
+    public TransactionType getType() { return type; }
+    public BigDecimal getAmount() { return amount; }
+    public String getDescription() { return description; }
+    public LocalDateTime getTxnDate() { return txnDate; }
 }

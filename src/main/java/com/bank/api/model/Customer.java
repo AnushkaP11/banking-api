@@ -1,56 +1,48 @@
 package com.bank.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(
-        name = "customers",
-        uniqueConstraints = @UniqueConstraint(columnNames = "email")
-)
+@Table(name = "customers")
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
 
-    @Column(nullable = false)
     private String fullName;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(nullable = false)
     private String mobile;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private CustomerStatus status;
 
-    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    protected Customer() {
-        // JPA
-    }
+    // ✅ VERY IMPORTANT FIX (prevents infinite loop)
+    @OneToMany(mappedBy = "customer")
+    @JsonIgnore
+    private List<Account> accounts;
 
-    public Customer(String fullName, String email, String mobile) {
-        this.fullName = fullName;
-        this.email = email;
-        this.mobile = mobile;
-        this.status = CustomerStatus.ACTIVE;
-        this.createdAt = LocalDateTime.now();
-    }
+    public Customer() {}
 
-    public Long getCustomerId() {
-        return customerId;
-    }
+    public Long getCustomerId() { return customerId; }
 
-    public CustomerStatus getStatus() {
-        return status;
-    }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
-    public void setStatus(CustomerStatus status) {
-        this.status = status;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getMobile() { return mobile; }
+    public void setMobile(String mobile) { this.mobile = mobile; }
+
+    public CustomerStatus getStatus() { return status; }
+    public void setStatus(CustomerStatus status) { this.status = status; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

@@ -1,11 +1,9 @@
 package com.bank.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
-/**
- * Represents a bank account.
- */
 @Entity
 @Table(name = "accounts")
 public class Account {
@@ -14,68 +12,39 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long accountId;
 
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(nullable = false, unique = true)
     private String accountNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private AccountType type;
 
-    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private AccountStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
+    // ✅ FINAL FIX (handles both recursion + Hibernate issue)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "customer_id")
+    @JsonIgnoreProperties({"accounts", "hibernateLazyInitializer", "handler"})
     private Customer customer;
 
-    protected Account() {
-        // JPA requirement
-    }
+    public Account() {}
 
-    public Account(String accountNumber,
-                   AccountType type,
-                   BigDecimal balance,
-                   Customer customer) {
-        this.accountNumber = accountNumber;
-        this.type = type;
-        this.balance = balance;
-        this.customer = customer;
-        this.status = AccountStatus.ACTIVE;
-    }
+    public Long getAccountId() { return accountId; }
 
-    public Long getAccountId() {
-        return accountId;
-    }
+    public String getAccountNumber() { return accountNumber; }
+    public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
 
-    public String getAccountNumber() {
-        return accountNumber;
-    }
+    public AccountType getType() { return type; }
+    public void setType(AccountType type) { this.type = type; }
 
-    public AccountType getType() {
-        return type;
-    }
+    public BigDecimal getBalance() { return balance; }
+    public void setBalance(BigDecimal balance) { this.balance = balance; }
 
-    public BigDecimal getBalance() {
-        return balance;
-    }
+    public AccountStatus getStatus() { return status; }
+    public void setStatus(AccountStatus status) { this.status = status; }
 
-    public AccountStatus getStatus() {
-        return status;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
-
-    public void setStatus(AccountStatus status) {
-        this.status = status;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
+    public Customer getCustomer() { return customer; }
+    public void setCustomer(Customer customer) { this.customer = customer; }
 }
