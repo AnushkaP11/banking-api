@@ -12,4 +12,7 @@ public interface CustomerService {
     List<Customer> getAllCustomers();
 
     void deactivateCustomer(Long id);
+
+    // ✅ IMPORTANT (fixes your error)
+    Customer updateCustomer(Customer customer);
 }

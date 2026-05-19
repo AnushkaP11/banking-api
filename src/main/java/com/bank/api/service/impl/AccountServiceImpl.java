@@ -22,35 +22,50 @@ public class AccountServiceImpl implements AccountService {
         this.customerRepository = customerRepository;
     }
 
+    // ✅ CREATE ACCOUNT
     @Override
     public Account openAccount(Account account) {
+
+        // ✅ ensure status always set
         account.setStatus(AccountStatus.ACTIVE);
 
         Long customerId = account.getCustomer().getCustomerId();
 
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + customerId));
 
         account.setCustomer(customer);
 
         return accountRepository.save(account);
     }
 
+    // ✅ GET ACCOUNT
     @Override
     public Account getAccountById(Long id) {
         return accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new RuntimeException("Account not found with id: " + id));
     }
 
+    // ✅ GET ACCOUNTS (simple version)
     @Override
     public List<Account> getAccountsByCustomerId(Long customerId) {
         return accountRepository.findAll();
     }
 
+    // ✅ ✅ FINAL FIXED STATUS METHOD (no 500 error)
     @Override
-    public void changeAccountStatus(Long accountId) {
-        Account account = getAccountById(accountId);
-        account.setStatus(AccountStatus.SUSPENDED);
-        accountRepository.save(account);
+    public Account changeAccountStatus(Long id) {
+
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found with id: " + id));
+
+        // ✅ safe toggle
+        if (account.getStatus() == null || account.getStatus() == AccountStatus.SUSPENDED) {
+            account.setStatus(AccountStatus.ACTIVE);
+        } else {
+            account.setStatus(AccountStatus.SUSPENDED);
+        }
+
+        return accountRepository.save(account);
     }
 }

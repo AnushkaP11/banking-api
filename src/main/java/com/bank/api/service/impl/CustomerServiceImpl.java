@@ -18,33 +18,45 @@ public class CustomerServiceImpl implements CustomerService {
         this.customerRepository = customerRepository;
     }
 
-    // ✅ Create customer
+    // ✅ CREATE
     @Override
     public Customer createCustomer(Customer customer) {
-        customer.setStatus(CustomerStatus.ACTIVE);
-        customer.setCreatedAt(LocalDateTime.now());
+
+        if (customer.getStatus() == null) {
+            customer.setStatus(CustomerStatus.ACTIVE);
+        }
+
+        if (customer.getCreatedAt() == null) {
+            customer.setCreatedAt(LocalDateTime.now());
+        }
+
         return customerRepository.save(customer);
     }
 
-    // ✅ Get customer by ID
+    // ✅ GET BY ID
     @Override
     public Customer getCustomerById(Long id) {
-        return customerRepository.findById(id).orElseThrow(() ->
-                new RuntimeException("Customer not found with id: " + id)
-        );
+        return customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
     }
 
-    // ✅ Get all customers
+    // ✅ GET ALL
     @Override
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
     }
 
-    // ✅ Deactivate customer
+    // ✅ DELETE (SOFT DELETE)
     @Override
     public void deactivateCustomer(Long id) {
         Customer customer = getCustomerById(id);
         customer.setStatus(CustomerStatus.INACTIVE);
         customerRepository.save(customer);
+    }
+
+    // ✅ UPDATE (FINAL FIX)
+    @Override
+    public Customer updateCustomer(Customer customer) {
+        return customerRepository.save(customer);
     }
 }

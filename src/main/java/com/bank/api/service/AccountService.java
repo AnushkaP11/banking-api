@@ -12,5 +12,6 @@ public interface AccountService {
 
     List<Account> getAccountsByCustomerId(Long customerId);
 
-    void changeAccountStatus(Long accountId);
+    // ✅ IMPORTANT
+    Account changeAccountStatus(Long id);
 }
