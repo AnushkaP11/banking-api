@@ -4,59 +4,58 @@ import com.bank.api.model.Customer;
 import com.bank.api.model.CustomerStatus;
 import com.bank.api.repository.CustomerRepository;
 import com.bank.api.service.CustomerService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
-    private final CustomerRepository customerRepository;
+    private final CustomerRepository repository;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
+    public CustomerServiceImpl(CustomerRepository repository) {
+        this.repository = repository;
     }
 
-    // ✅ CREATE
+    // ✅ CREATE CUSTOMER
     @Override
     public Customer createCustomer(Customer customer) {
-
-        if (customer.getStatus() == null) {
-            customer.setStatus(CustomerStatus.ACTIVE);
-        }
-
-        if (customer.getCreatedAt() == null) {
-            customer.setCreatedAt(LocalDateTime.now());
-        }
-
-        return customerRepository.save(customer);
+        customer.setStatus(CustomerStatus.ACTIVE);
+        customer.setCreatedAt(LocalDateTime.now());
+        return repository.save(customer);
     }
 
-    // ✅ GET BY ID
+    // ✅ GET CUSTOMER BY ID
     @Override
     public Customer getCustomerById(Long id) {
-        return customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
-    // ✅ GET ALL
+    // ✅ ✅ PAGINATION METHOD
     @Override
-    public List<Customer> getAllCustomers() {
-        return customerRepository.findAll();
+    public Page<Customer> getAllCustomers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAll(pageable);
+    }
+
+    // ✅ UPDATE CUSTOMER
+    @Override
+    public Customer updateCustomer(Long id, Customer updated) {
+        Customer customer = getCustomerById(id);
+        customer.setEmail(updated.getEmail());
+        customer.setMobile(updated.getMobile());
+        return repository.save(customer);
     }
 
     // ✅ DELETE (SOFT DELETE)
     @Override
-    public void deactivateCustomer(Long id) {
+    public Customer deleteCustomer(Long id) {
         Customer customer = getCustomerById(id);
         customer.setStatus(CustomerStatus.INACTIVE);
-        customerRepository.save(customer);
-    }
-
-    // ✅ UPDATE (FINAL FIX)
-    @Override
-    public Customer updateCustomer(Customer customer) {
-        return customerRepository.save(customer);
+        return repository.save(customer);
     }
 }

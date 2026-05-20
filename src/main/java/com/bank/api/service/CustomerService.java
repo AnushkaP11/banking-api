@@ -1,7 +1,7 @@
 package com.bank.api.service;
 
 import com.bank.api.model.Customer;
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface CustomerService {
 
@@ -9,10 +9,10 @@ public interface CustomerService {
 
     Customer getCustomerById(Long id);
 
-    List<Customer> getAllCustomers();
+    // ✅ Pagination
+    Page<Customer> getAllCustomers(int page, int size);
 
-    void deactivateCustomer(Long id);
+    Customer updateCustomer(Long id, Customer updated);
 
-    // ✅ IMPORTANT (fixes your error)
-    Customer updateCustomer(Customer customer);
+    Customer deleteCustomer(Long id);
 }
