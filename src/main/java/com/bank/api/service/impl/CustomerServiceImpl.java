@@ -1,13 +1,16 @@
 package com.bank.api.service.impl;
 
+import com.bank.api.dto.CustomerDTO;
+import com.bank.api.exception.ResourceNotFoundException;
+import com.bank.api.mapper.CustomerMapper;
 import com.bank.api.model.Customer;
 import com.bank.api.model.CustomerStatus;
 import com.bank.api.repository.CustomerRepository;
 import com.bank.api.service.CustomerService;
+
+import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
@@ -20,42 +23,57 @@ public class CustomerServiceImpl implements CustomerService {
         this.repository = repository;
     }
 
-    // ✅ CREATE CUSTOMER
+    // ✅ CREATE
     @Override
-    public Customer createCustomer(Customer customer) {
-        customer.setStatus(CustomerStatus.ACTIVE);
+    public CustomerDTO createCustomer(CustomerDTO dto) {
+
+        Customer customer = CustomerMapper.toEntity(dto);
+
         customer.setCreatedAt(LocalDateTime.now());
-        return repository.save(customer);
+        customer.setStatus(CustomerStatus.ACTIVE);
+
+        return CustomerMapper.toDTO(repository.save(customer));
     }
 
-    // ✅ GET CUSTOMER BY ID
+    // ✅ GET BY ID
     @Override
-    public Customer getCustomerById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+    public CustomerDTO getCustomerById(Long id) {
+
+        Customer customer = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        return CustomerMapper.toDTO(customer);
     }
 
-    // ✅ ✅ PAGINATION METHOD
+    // ✅ PAGINATION
     @Override
-    public Page<Customer> getAllCustomers(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return repository.findAll(pageable);
+    public Page<CustomerDTO> getAllCustomers(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(CustomerMapper::toDTO);
     }
 
-    // ✅ UPDATE CUSTOMER
+    // ✅ UPDATE
     @Override
-    public Customer updateCustomer(Long id, Customer updated) {
-        Customer customer = getCustomerById(id);
-        customer.setEmail(updated.getEmail());
-        customer.setMobile(updated.getMobile());
-        return repository.save(customer);
+    public CustomerDTO updateCustomer(Long id, CustomerDTO dto) {
+
+        Customer customer = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        customer.setEmail(dto.getEmail());
+        customer.setMobile(dto.getMobile());
+
+        return CustomerMapper.toDTO(repository.save(customer));
     }
 
-    // ✅ DELETE (SOFT DELETE)
+    // ✅ SOFT DELETE
     @Override
-    public Customer deleteCustomer(Long id) {
-        Customer customer = getCustomerById(id);
+    public void deleteCustomer(Long id) {
+
+        Customer customer = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
         customer.setStatus(CustomerStatus.INACTIVE);
-        return repository.save(customer);
+
+        repository.save(customer);
     }
 }

@@ -14,58 +14,26 @@ public class Customer {
     private String email;
     private String mobile;
 
-    // ✅ STATUS FIELD (IMPORTANT)
+    private LocalDateTime createdAt;
+
     @Enumerated(EnumType.STRING)
     private CustomerStatus status;
 
-    // ✅ CREATED TIME
-    private LocalDateTime createdAt;
+    // getters
 
-    // ✅ =========================
-    // ✅ GETTERS & SETTERS
-    // ✅ =========================
+    public Long getCustomerId() { return customerId; }
+    public String getFullName() { return fullName; }
+    public String getEmail() { return email; }
+    public String getMobile() { return mobile; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public CustomerStatus getStatus() { return status; }
 
-    public Long getCustomerId() {
-        return customerId;
-    }
+    // setters
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
-    public CustomerStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(CustomerStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    public void setCustomerId(Long customerId) { this.customerId = customerId; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setEmail(String email) { this.email = email; }
+    public void setMobile(String mobile) { this.mobile = mobile; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setStatus(CustomerStatus status) { this.status = status; }
 }

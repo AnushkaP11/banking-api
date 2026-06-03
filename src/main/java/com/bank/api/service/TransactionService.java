@@ -1,18 +1,17 @@
 package com.bank.api.service;
 
-import com.bank.api.model.Transaction;
-
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface TransactionService {
 
-    Transaction deposit(Long accountId, BigDecimal amount);
+    String deposit(Long accountId, Double amount);
 
-    Transaction withdraw(Long accountId, BigDecimal amount);
+    String withdraw(Long accountId, Double amount);
 
-    void transfer(Long fromAccountId, Long toAccountId, BigDecimal amount);
+    String transfer(Long fromId, Long toId, Double amount);
 
-    List<Transaction> getMiniStatement(Long accountId);
+    List<?> getTransactions(Long accountId);
+
+    List<?> getMiniStatement(Long accountId);
 }
-

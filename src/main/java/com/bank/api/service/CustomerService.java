@@ -1,18 +1,18 @@
 package com.bank.api.service;
 
-import com.bank.api.model.Customer;
+import com.bank.api.dto.CustomerDTO;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CustomerService {
 
-    Customer createCustomer(Customer customer);
+    CustomerDTO createCustomer(CustomerDTO dto);
 
-    Customer getCustomerById(Long id);
+    CustomerDTO getCustomerById(Long id);
 
-    // ✅ Pagination
-    Page<Customer> getAllCustomers(int page, int size);
+    Page<CustomerDTO> getAllCustomers(Pageable pageable);
 
-    Customer updateCustomer(Long id, Customer updated);
+    CustomerDTO updateCustomer(Long id, CustomerDTO dto);
 
-    Customer deleteCustomer(Long id);
+    void deleteCustomer(Long id);
 }

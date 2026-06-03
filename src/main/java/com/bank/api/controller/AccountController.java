@@ -1,49 +1,58 @@
 package com.bank.api.controller;
 
-import com.bank.api.model.Account;
+import com.bank.api.dto.AccountDTO;
+import com.bank.api.dto.StatusDTO;
 import com.bank.api.service.AccountService;
+
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/accounts")
+@RequestMapping("/api/v1")
 public class AccountController {
 
-    private final AccountService accountService;
+    private final AccountService service;
 
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
+    public AccountController(AccountService service) {
+        this.service = service;
     }
 
-    // ✅ CREATE ACCOUNT
-    @PostMapping
-    public Account createAccount(@RequestBody Account account) {
-        return accountService.openAccount(account);
+    // ✅ CREATE
+    @PostMapping("/accounts")
+    public AccountDTO createAccount(@RequestBody AccountDTO dto) {
+        return service.createAccount(dto);
     }
 
     // ✅ GET ACCOUNT
-    @GetMapping("/{id}")
-    public Account getAccount(@PathVariable Long id) {
-        return accountService.getAccountById(id);
+    @GetMapping("/accounts/{id}")
+    public AccountDTO getAccount(@PathVariable Long id) {
+        return service.getAccountById(id);
     }
 
-    // ✅ GET ACCOUNTS BY CUSTOMER
-    @GetMapping("/customer/{customerId}")
-    public List<Account> getAccountsByCustomer(@PathVariable Long customerId) {
-        return accountService.getAccountsByCustomerId(customerId);
+    // ✅ GET BY CUSTOMER
+    @GetMapping("/customers/{id}/accounts")
+    public List<AccountDTO> getAccountsByCustomer(@PathVariable Long id) {
+        return service.getAccountsByCustomer(id);
     }
 
-    // ✅ GET BALANCE
-    @GetMapping("/{id}/balance")
-    public BigDecimal getBalance(@PathVariable Long id) {
-        return accountService.getAccountById(id).getBalance();
+    // ✅ CHANGE STATUS
+    @PatchMapping("/accounts/{id}/status")
+    public String updateStatus(@PathVariable Long id,
+                               @RequestBody StatusDTO dto) {
+
+        service.updateAccountStatus(id, dto.getStatus());
+        return "Account status updated";
     }
 
-    // ✅ ✅ FIXED PATCH STATUS (MAIN ISSUE FIXED HERE)
-    @PatchMapping("/{id}/status")
-    public Account changeStatus(@PathVariable Long id) {
-        return accountService.changeAccountStatus(id);
+    // ✅ ✅ ✅ BALANCE API (FINAL FIX)
+    @GetMapping("/accounts/{id}/balance")
+    public Map<String, Object> getBalance(@PathVariable Long id) {
+
+        return Map.of(
+                "accountId", id,
+                "balance", service.getBalance(id)
+        );
     }
 }

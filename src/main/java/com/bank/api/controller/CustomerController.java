@@ -1,15 +1,17 @@
 package com.bank.api.controller;
 
-import com.bank.api.model.Customer;
+import com.bank.api.dto.CustomerDTO;
 import com.bank.api.service.CustomerService;
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @RestController
-@RequestMapping("/api/customers")
+@RequestMapping("/api/v1/customers")
 public class CustomerController {
 
     private final CustomerService service;
@@ -18,43 +20,39 @@ public class CustomerController {
         this.service = service;
     }
 
-    // ✅ CREATE CUSTOMER
+    // ✅ CREATE
     @PostMapping
-    public Customer createCustomer(@RequestBody Customer customer) {
-        return service.createCustomer(customer);
+    public CustomerDTO createCustomer(@Valid @RequestBody CustomerDTO dto) {
+        return service.createCustomer(dto);
     }
 
-    // ✅ GET CUSTOMER BY ID
+    // ✅ GET BY ID
     @GetMapping("/{id}")
-    public Customer getCustomer(@PathVariable Long id) {
+    public CustomerDTO getCustomer(@PathVariable Long id) {
         return service.getCustomerById(id);
     }
 
-    // ✅ ✅ GET ALL CUSTOMERS WITH PAGINATION
+    // ✅ PAGINATION
     @GetMapping
-    public Page<Customer> getAllCustomers(
-            @RequestParam int page,
-            @RequestParam int size) {
+    public Page<CustomerDTO> getAllCustomers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
 
-        return service.getAllCustomers(page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return service.getAllCustomers(pageable);
     }
 
-    // ✅ UPDATE CUSTOMER
+    // ✅ UPDATE
     @PutMapping("/{id}")
-    public Customer updateCustomer(@PathVariable Long id,
-                                   @RequestBody Customer updated) {
-        return service.updateCustomer(id, updated);
+    public CustomerDTO updateCustomer(@PathVariable Long id,
+                                      @Valid @RequestBody CustomerDTO dto) {
+        return service.updateCustomer(id, dto);
     }
 
-    // ✅ ✅ DELETE (RETURN ONLY STATUS)
+    // ✅ DELETE (SOFT DELETE)
     @DeleteMapping("/{id}")
-    public Map<String, String> deleteCustomer(@PathVariable Long id) {
-
-        Customer deleted = service.deleteCustomer(id);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("status", deleted.getStatus().toString());
-
-        return response;
+    public String deleteCustomer(@PathVariable Long id) {
+        service.deleteCustomer(id);
+        return "Customer set to INACTIVE";
     }
 }

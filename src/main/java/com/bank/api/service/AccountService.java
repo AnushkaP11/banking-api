@@ -1,17 +1,21 @@
 package com.bank.api.service;
 
-import com.bank.api.model.Account;
-
+import com.bank.api.dto.AccountDTO;
 import java.util.List;
+import java.math.BigDecimal;
 
 public interface AccountService {
 
-    Account openAccount(Account account);
+    AccountDTO createAccount(AccountDTO dto);
 
-    Account getAccountById(Long id);
+    AccountDTO getAccountById(Long id);
 
-    List<Account> getAccountsByCustomerId(Long customerId);
+    List<AccountDTO> getAccountsByCustomer(Long customerId);
 
-    // ✅ IMPORTANT
-    Account changeAccountStatus(Long id);
+    List<AccountDTO> getAllAccounts();
+
+    void updateAccountStatus(Long id, String status);
+
+    // ✅ ADD THIS (BALANCE API)
+    BigDecimal getBalance(Long id);
 }

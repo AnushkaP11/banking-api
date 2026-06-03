@@ -1,15 +1,15 @@
 package com.bank.api.service.impl;
 
-import com.bank.api.model.Account;
-import com.bank.api.model.AccountStatus;
-import com.bank.api.model.Transaction;
-import com.bank.api.model.TransactionType;
+import com.bank.api.exception.ResourceNotFoundException;
+import com.bank.api.model.*;
 import com.bank.api.repository.AccountRepository;
 import com.bank.api.repository.TransactionRepository;
 import com.bank.api.service.TransactionService;
+
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,133 +26,106 @@ public class TransactionServiceImpl implements TransactionService {
 
     // ✅ DEPOSIT
     @Override
-    public Transaction deposit(Long accountId, BigDecimal amount) {
+    public String deposit(Long accountId, Double amount) {
 
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
-        // ✅ RULE 1: Amount must be > 0
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Amount must be greater than 0");
+        if (account.getBalance() == null) {
+            account.setBalance(BigDecimal.ZERO);
         }
 
-        // ✅ RULE 2: Account must be active
-        if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Account is not active");
-        }
+        BigDecimal amt = BigDecimal.valueOf(amount);
+        account.setBalance(account.getBalance().add(amt));
 
-        account.setBalance(account.getBalance().add(amount));
         accountRepository.save(account);
 
-        Transaction txn = new Transaction(
-                TransactionType.CREDIT,
-                amount,
-                "Deposit",
-                account
-        );
+        // ✅ Save transaction
+        Transaction txn = new Transaction();
+        txn.setAmount(amt);
+        txn.setType(TransactionType.CREDIT);
+        txn.setDescription("Deposit");
+        txn.setTxnDate(LocalDateTime.now());
+        txn.setAccount(account);
 
-        return transactionRepository.save(txn);
+        transactionRepository.save(txn);
+
+        return "Amount deposited successfully";
     }
 
     // ✅ WITHDRAW
     @Override
-    public Transaction withdraw(Long accountId, BigDecimal amount) {
+    public String withdraw(Long accountId, Double amount) {
 
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
-        // ✅ RULE 1: Amount must be > 0
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Amount must be greater than 0");
-        }
+        BigDecimal amt = BigDecimal.valueOf(amount);
 
-        // ✅ RULE 2: Account must be active
-        if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Account is not active");
-        }
-
-        // ✅ RULE 3: Sufficient balance check
-        if (account.getBalance().compareTo(amount) < 0) {
+        if (account.getBalance().compareTo(amt) < 0) {
             throw new RuntimeException("Insufficient balance");
         }
 
-        account.setBalance(account.getBalance().subtract(amount));
+        account.setBalance(account.getBalance().subtract(amt));
+
         accountRepository.save(account);
 
-        Transaction txn = new Transaction(
-                TransactionType.DEBIT,
-                amount,
-                "Withdraw",
-                account
-        );
+        Transaction txn = new Transaction();
+        txn.setAmount(amt);
+        txn.setType(TransactionType.DEBIT);
+        txn.setDescription("Withdraw");
+        txn.setTxnDate(LocalDateTime.now());
+        txn.setAccount(account);
 
-        return transactionRepository.save(txn);
+        transactionRepository.save(txn);
+
+        return "Amount withdrawn successfully";
     }
 
     // ✅ TRANSFER
     @Override
-    public void transfer(Long fromAccountId, Long toAccountId, BigDecimal amount) {
+    public String transfer(Long fromId, Long toId, Double amount) {
 
-        // ✅ RULE 1: Accounts must be different
-        if (fromAccountId.equals(toAccountId)) {
-            throw new RuntimeException("Source and destination accounts cannot be same");
+        if (fromId.equals(toId)) {
+            throw new RuntimeException("Same account transfer not allowed");
         }
 
-        // ✅ RULE 2: Amount must be > 0
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Amount must be greater than 0");
-        }
+        Account from = accountRepository.findById(fromId)
+                .orElseThrow(() -> new ResourceNotFoundException("Source not found"));
 
-        Account fromAccount = accountRepository.findById(fromAccountId)
-                .orElseThrow(() -> new RuntimeException("From account not found"));
+        Account to = accountRepository.findById(toId)
+                .orElseThrow(() -> new ResourceNotFoundException("Destination not found"));
 
-        Account toAccount = accountRepository.findById(toAccountId)
-                .orElseThrow(() -> new RuntimeException("To account not found"));
+        BigDecimal amt = BigDecimal.valueOf(amount);
 
-        // ✅ RULE 3: Both accounts must be ACTIVE
-        if (fromAccount.getStatus() != AccountStatus.ACTIVE ||
-                toAccount.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("One of the accounts is not active");
-        }
-
-        // ✅ RULE 4: Check sufficient balance
-        if (fromAccount.getBalance().compareTo(amount) < 0) {
+        if (from.getBalance().compareTo(amt) < 0) {
             throw new RuntimeException("Insufficient balance");
         }
 
-        // ✅ Perform transfer
-        fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
-        toAccount.setBalance(toAccount.getBalance().add(amount));
+        from.setBalance(from.getBalance().subtract(amt));
+        to.setBalance(to.getBalance().add(amt));
 
-        accountRepository.save(fromAccount);
-        accountRepository.save(toAccount);
+        accountRepository.save(from);
+        accountRepository.save(to);
 
-        // ✅ Record transactions
-        Transaction debitTxn = new Transaction(
-                TransactionType.TRANSFER,
-                amount,
-                "Transfer to Account " + toAccountId,
-                fromAccount
-        );
+        return "Transfer successful";
+    }
 
-        Transaction creditTxn = new Transaction(
-                TransactionType.TRANSFER,
-                amount,
-                "Transfer from Account " + fromAccountId,
-                toAccount
-        );
-
-        transactionRepository.save(debitTxn);
-        transactionRepository.save(creditTxn);
+    // ✅ HISTORY
+    @Override
+    public List<Transaction> getTransactions(Long accountId) {
+        return transactionRepository.findByAccountAccountId(accountId);
     }
 
     // ✅ MINI STATEMENT
     @Override
     public List<Transaction> getMiniStatement(Long accountId) {
 
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+        List<Transaction> list = transactionRepository.findByAccountAccountId(accountId);
 
-        return transactionRepository.findTop5ByAccountOrderByTxnDateDesc(account);
+        return list.stream()
+                .sorted((a, b) -> b.getTxnDate().compareTo(a.getTxnDate()))
+                .limit(5)
+                .toList();
     }
 }

@@ -1,13 +1,18 @@
 package com.bank.api.service.impl;
 
+import com.bank.api.dto.AccountDTO;
+import com.bank.api.exception.ResourceNotFoundException;
+import com.bank.api.mapper.AccountMapper;
 import com.bank.api.model.Account;
 import com.bank.api.model.AccountStatus;
 import com.bank.api.model.Customer;
 import com.bank.api.repository.AccountRepository;
 import com.bank.api.repository.CustomerRepository;
 import com.bank.api.service.AccountService;
+
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -22,50 +27,78 @@ public class AccountServiceImpl implements AccountService {
         this.customerRepository = customerRepository;
     }
 
-    // ✅ CREATE ACCOUNT
+    // ✅ CREATE
     @Override
-    public Account openAccount(Account account) {
+    public AccountDTO createAccount(AccountDTO dto) {
 
-        // ✅ ensure status always set
-        account.setStatus(AccountStatus.ACTIVE);
+        Customer customer = customerRepository.findById(dto.getCustomerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
-        Long customerId = account.getCustomer().getCustomerId();
-
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + customerId));
+        Account account = AccountMapper.toEntity(dto);
 
         account.setCustomer(customer);
+        account.setAccountNumber(generateAccountNumber());
+        account.setStatus(AccountStatus.ACTIVE);
 
-        return accountRepository.save(account);
+        return AccountMapper.toDTO(accountRepository.save(account));
     }
 
     // ✅ GET ACCOUNT
     @Override
-    public Account getAccountById(Long id) {
-        return accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found with id: " + id));
-    }
-
-    // ✅ GET ACCOUNTS (simple version)
-    @Override
-    public List<Account> getAccountsByCustomerId(Long customerId) {
-        return accountRepository.findAll();
-    }
-
-    // ✅ ✅ FINAL FIXED STATUS METHOD (no 500 error)
-    @Override
-    public Account changeAccountStatus(Long id) {
+    public AccountDTO getAccountById(Long id) {
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
-        // ✅ safe toggle
-        if (account.getStatus() == null || account.getStatus() == AccountStatus.SUSPENDED) {
-            account.setStatus(AccountStatus.ACTIVE);
-        } else {
-            account.setStatus(AccountStatus.SUSPENDED);
-        }
+        return AccountMapper.toDTO(account);
+    }
 
-        return accountRepository.save(account);
+    // ✅ GET ALL
+    @Override
+    public List<AccountDTO> getAllAccounts() {
+        return accountRepository.findAll()
+                .stream()
+                .map(AccountMapper::toDTO)
+                .toList();
+    }
+
+    // ✅ GET BY CUSTOMER
+    @Override
+    public List<AccountDTO> getAccountsByCustomer(Long customerId) {
+
+        customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        return accountRepository.findByCustomerCustomerId(customerId)
+                .stream()
+                .map(AccountMapper::toDTO)
+                .toList();
+    }
+
+    // ✅ CHANGE STATUS
+    @Override
+    public void updateAccountStatus(Long id, String status) {
+
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+        account.setStatus(AccountStatus.valueOf(status));
+
+        accountRepository.save(account);
+    }
+
+    // ✅ ✅ ✅ BALANCE API (MAIN FIX)
+    @Override
+    public BigDecimal getBalance(Long id) {
+
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+        return account.getBalance();
+    }
+
+    // ✅ ACCOUNT NUMBER GENERATOR
+    private String generateAccountNumber() {
+        return String.valueOf((long)(Math.random() * 9000000000L) + 1000000000L);
     }
 }
