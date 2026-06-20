@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -32,7 +33,7 @@ public class TransactionController {
     @PostMapping("/transactions/deposit")
     public String deposit(
             @Parameter(description = "Account ID to deposit into", required = true) @RequestParam Long accountId,
-            @Parameter(description = "Amount to deposit", required = true) @RequestParam Double amount) {
+            @Parameter(description = "Amount to deposit", required = true) @RequestParam BigDecimal amount) {
         return service.deposit(accountId, amount);
     }
 
@@ -45,7 +46,7 @@ public class TransactionController {
     @PostMapping("/transactions/withdraw")
     public String withdraw(
             @Parameter(description = "Account ID to withdraw from", required = true) @RequestParam Long accountId,
-            @Parameter(description = "Amount to withdraw", required = true) @RequestParam Double amount) {
+            @Parameter(description = "Amount to withdraw", required = true) @RequestParam BigDecimal amount) {
         return service.withdraw(accountId, amount);
     }
 
@@ -59,7 +60,7 @@ public class TransactionController {
     public String transfer(
             @Parameter(description = "Source account ID", required = true) @RequestParam Long fromId,
             @Parameter(description = "Destination account ID", required = true) @RequestParam Long toId,
-            @Parameter(description = "Amount to transfer", required = true) @RequestParam Double amount) {
+            @Parameter(description = "Amount to transfer", required = true) @RequestParam BigDecimal amount) {
         return service.transfer(fromId, toId, amount);
     }
 

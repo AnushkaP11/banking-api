@@ -8,4 +8,6 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findByAccountAccountId(Long accountId);
+
+    List<Transaction> findTop5ByAccountAccountIdOrderByTxnDateDesc(Long accountId);
 }

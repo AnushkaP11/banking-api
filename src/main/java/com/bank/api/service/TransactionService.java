@@ -5,11 +5,11 @@ import java.util.List;
 
 public interface TransactionService {
 
-    String deposit(Long accountId, Double amount);
+    String deposit(Long accountId, BigDecimal amount);
 
-    String withdraw(Long accountId, Double amount);
+    String withdraw(Long accountId, BigDecimal amount);
 
-    String transfer(Long fromId, Long toId, Double amount);
+    String transfer(Long fromId, Long toId, BigDecimal amount);
 
     List<?> getTransactions(Long accountId);
 
