@@ -7,7 +7,6 @@ import com.bank.api.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.web.bind.annotation.*;
@@ -27,20 +26,16 @@ public class AccountController {
     }
 
     @Operation(summary = "Create a new account", description = "Creates a new bank account for a customer")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Account created successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid request data")
-    })
+    @ApiResponse(responseCode = "200", description = "Account created successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request data")
     @PostMapping("/accounts")
     public AccountDTO createAccount(@RequestBody AccountDTO dto) {
         return service.createAccount(dto);
     }
 
     @Operation(summary = "Get account by ID", description = "Retrieves a bank account by its ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Account found"),
-            @ApiResponse(responseCode = "404", description = "Account not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Account found")
+    @ApiResponse(responseCode = "404", description = "Account not found")
     @GetMapping("/accounts/{id}")
     public AccountDTO getAccount(
             @Parameter(description = "Account ID", required = true) @PathVariable Long id) {
@@ -48,10 +43,8 @@ public class AccountController {
     }
 
     @Operation(summary = "Get accounts by customer", description = "Retrieves all accounts belonging to a customer")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Accounts retrieved successfully"),
-            @ApiResponse(responseCode = "404", description = "Customer not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Accounts retrieved successfully")
+    @ApiResponse(responseCode = "404", description = "Customer not found")
     @GetMapping("/customers/{id}/accounts")
     public List<AccountDTO> getAccountsByCustomer(
             @Parameter(description = "Customer ID", required = true) @PathVariable Long id) {
@@ -59,10 +52,8 @@ public class AccountController {
     }
 
     @Operation(summary = "Update account status", description = "Changes the status of an account (e.g. ACTIVE, INACTIVE, CLOSED)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Status updated successfully"),
-            @ApiResponse(responseCode = "404", description = "Account not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Status updated successfully")
+    @ApiResponse(responseCode = "404", description = "Account not found")
     @PatchMapping("/accounts/{id}/status")
     public String updateStatus(
             @Parameter(description = "Account ID", required = true) @PathVariable Long id,
@@ -72,10 +63,8 @@ public class AccountController {
     }
 
     @Operation(summary = "Get account balance", description = "Returns the current balance of an account")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Balance retrieved successfully"),
-            @ApiResponse(responseCode = "404", description = "Account not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Balance retrieved successfully")
+    @ApiResponse(responseCode = "404", description = "Account not found")
     @GetMapping("/accounts/{id}/balance")
     public Map<String, Object> getBalance(
             @Parameter(description = "Account ID", required = true) @PathVariable Long id) {

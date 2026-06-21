@@ -4,6 +4,8 @@ import com.bank.api.exception.AccountStatusException;
 import com.bank.api.exception.InsufficientBalanceException;
 import com.bank.api.exception.ResourceNotFoundException;
 import com.bank.api.exception.ValidationException;
+import com.bank.api.dto.TransactionDTO;
+import com.bank.api.mapper.TransactionMapper;
 import com.bank.api.model.Account;
 import com.bank.api.model.AccountStatus;
 import com.bank.api.model.Transaction;
@@ -12,6 +14,8 @@ import com.bank.api.repository.AccountRepository;
 import com.bank.api.repository.TransactionRepository;
 import com.bank.api.service.TransactionService;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,13 +100,24 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> getTransactions(Long accountId) {
-        return transactionRepository.findByAccountAccountId(accountId);
+    public Page<TransactionDTO> getTransactions(Long accountId, LocalDateTime startDate,
+                                                LocalDateTime endDate, Pageable pageable) {
+        Page<Transaction> page;
+        if (startDate != null && endDate != null) {
+            page = transactionRepository.findByAccountAccountIdAndTxnDateBetween(
+                    accountId, startDate, endDate, pageable);
+        } else {
+            page = transactionRepository.findByAccountAccountId(accountId, pageable);
+        }
+        return page.map(TransactionMapper::toDTO);
     }
 
     @Override
-    public List<Transaction> getMiniStatement(Long accountId) {
-        return transactionRepository.findTop5ByAccountAccountIdOrderByTxnDateDesc(accountId);
+    public List<TransactionDTO> getMiniStatement(Long accountId) {
+        return transactionRepository.findTop5ByAccountAccountIdOrderByTxnDateDesc(accountId)
+                .stream()
+                .map(TransactionMapper::toDTO)
+                .toList();
     }
 
     private Account findActiveAccount(Long accountId) {

@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
+    private static final String CUSTOMER_NOT_FOUND = "Customer not found with id: ";
+
     private final CustomerRepository repository;
 
     public CustomerServiceImpl(CustomerRepository repository) {
@@ -45,7 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerById(Long id) {
 
         Customer customer = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CUSTOMER_NOT_FOUND + id));
 
         return CustomerMapper.toDTO(customer);
     }
@@ -61,7 +63,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO updateCustomer(Long id, CustomerDTO dto) {
 
         Customer customer = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CUSTOMER_NOT_FOUND + id));
 
         if (!customer.getEmail().equals(dto.getEmail())) {
             repository.findByEmail(dto.getEmail()).ifPresent(existing -> {
@@ -81,7 +83,7 @@ public class CustomerServiceImpl implements CustomerService {
     public void deleteCustomer(Long id) {
 
         Customer customer = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CUSTOMER_NOT_FOUND + id));
 
         customer.setStatus(CustomerStatus.INACTIVE);
         repository.save(customer);

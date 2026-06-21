@@ -6,7 +6,6 @@ import com.bank.api.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
@@ -28,20 +27,16 @@ public class CustomerController {
     }
 
     @Operation(summary = "Create a new customer", description = "Registers a new customer in the banking system")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Customer created successfully"),
-            @ApiResponse(responseCode = "400", description = "Validation error in request data")
-    })
+    @ApiResponse(responseCode = "200", description = "Customer created successfully")
+    @ApiResponse(responseCode = "400", description = "Validation error in request data")
     @PostMapping
     public CustomerDTO createCustomer(@Valid @RequestBody CustomerDTO dto) {
         return service.createCustomer(dto);
     }
 
     @Operation(summary = "Get customer by ID", description = "Retrieves a customer's details by their ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Customer found"),
-            @ApiResponse(responseCode = "404", description = "Customer not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Customer found")
+    @ApiResponse(responseCode = "404", description = "Customer not found")
     @GetMapping("/{id}")
     public CustomerDTO getCustomer(
             @Parameter(description = "Customer ID", required = true) @PathVariable Long id) {
@@ -59,11 +54,9 @@ public class CustomerController {
     }
 
     @Operation(summary = "Update customer", description = "Updates an existing customer's information")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Customer updated successfully"),
-            @ApiResponse(responseCode = "404", description = "Customer not found"),
-            @ApiResponse(responseCode = "400", description = "Validation error in request data")
-    })
+    @ApiResponse(responseCode = "200", description = "Customer updated successfully")
+    @ApiResponse(responseCode = "404", description = "Customer not found")
+    @ApiResponse(responseCode = "400", description = "Validation error in request data")
     @PutMapping("/{id}")
     public CustomerDTO updateCustomer(
             @Parameter(description = "Customer ID", required = true) @PathVariable Long id,
@@ -72,10 +65,8 @@ public class CustomerController {
     }
 
     @Operation(summary = "Delete customer", description = "Soft-deletes a customer by setting their status to INACTIVE")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Customer set to INACTIVE"),
-            @ApiResponse(responseCode = "404", description = "Customer not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Customer set to INACTIVE")
+    @ApiResponse(responseCode = "404", description = "Customer not found")
     @DeleteMapping("/{id}")
     public String deleteCustomer(
             @Parameter(description = "Customer ID", required = true) @PathVariable Long id) {

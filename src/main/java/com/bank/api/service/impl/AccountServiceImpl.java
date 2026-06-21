@@ -15,10 +15,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.List;
 
 @Service
 public class AccountServiceImpl implements AccountService {
+
+    private static final long ACCOUNT_NUMBER_MIN = 1_000_000_000L;
+    private static final long ACCOUNT_NUMBER_RANGE = 9_000_000_000L;
+    private static final String ACCOUNT_NOT_FOUND = "Account not found";
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
@@ -50,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountDTO getAccountById(Long id) {
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ACCOUNT_NOT_FOUND));
 
         return AccountMapper.toDTO(account);
     }
@@ -80,7 +86,7 @@ public class AccountServiceImpl implements AccountService {
     public void updateAccountStatus(Long id, String status) {
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ACCOUNT_NOT_FOUND));
 
         AccountStatus newStatus = AccountStatus.valueOf(status.toUpperCase());
 
@@ -99,12 +105,12 @@ public class AccountServiceImpl implements AccountService {
     public BigDecimal getBalance(Long id) {
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ACCOUNT_NOT_FOUND));
 
         return account.getBalance();
     }
 
     private String generateAccountNumber() {
-        return String.valueOf((long) (Math.random() * 9_000_000_000L) + 1_000_000_000L);
+        return String.valueOf(SECURE_RANDOM.nextLong(ACCOUNT_NUMBER_RANGE) + ACCOUNT_NUMBER_MIN);
     }
 }

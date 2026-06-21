@@ -5,6 +5,8 @@ import com.bank.api.model.Customer;
 
 public class CustomerMapper {
 
+    private CustomerMapper() {}
+
     public static CustomerDTO toDTO(Customer customer) {
 
         CustomerDTO dto = new CustomerDTO();

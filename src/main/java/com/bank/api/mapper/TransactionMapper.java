@@ -5,6 +5,8 @@ import com.bank.api.model.Transaction;
 
 public class TransactionMapper {
 
+    private TransactionMapper() {}
+
     public static TransactionDTO toDTO(Transaction txn) {
 
         TransactionDTO dto = new TransactionDTO();

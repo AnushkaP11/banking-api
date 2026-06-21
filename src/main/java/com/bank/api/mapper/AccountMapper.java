@@ -6,6 +6,8 @@ import com.bank.api.model.AccountType;
 
 public class AccountMapper {
 
+    private AccountMapper() {}
+
     public static AccountDTO toDTO(Account account) {
 
         AccountDTO dto = new AccountDTO();

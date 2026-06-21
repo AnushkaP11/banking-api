@@ -1,0 +1,177 @@
+{
+  "info": {
+    "name": "Banking API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Customer",
+      "item": [
+        {
+          "name": "C-01 Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"mobile\": \"9876543210\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/v1/customers", "host": ["{{baseUrl}}"], "path": ["api","v1","customers"]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('Status is 200', function() { pm.response.to.have.status(200); });"], "type": "text/javascript"}}]
+        },
+        {
+          "name": "C-02 Get Customer by ID",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/api/v1/customers/1", "host": ["{{baseUrl}}"], "path": ["api","v1","customers","1"]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('Status is 200', function() { pm.response.to.have.status(200); });"], "type": "text/javascript"}}]
+        },
+        {
+          "name": "C-03 Get All Customers (Paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers?page=0&size=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","customers"],
+              "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "5"}]
+            }
+          }
+        },
+        {
+          "name": "C-04 Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Doe\",\n  \"email\": \"john.updated@example.com\",\n  \"mobile\": \"9000000001\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/v1/customers/1", "host": ["{{baseUrl}}"], "path": ["api","v1","customers","1"]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('Status is 200', function() { pm.response.to.have.status(200); });"], "type": "text/javascript"}}]
+        },
+        {
+          "name": "C-05 Delete Customer (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/api/v1/customers/1", "host": ["{{baseUrl}}"], "path": ["api","v1","customers","1"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "A-01 Create Account",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": 1,\n  \"type\": \"SAVINGS\",\n  \"balance\": 1000\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/v1/accounts", "host": ["{{baseUrl}}"], "path": ["api","v1","accounts"]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('Status is 200', function() { pm.response.to.have.status(200); });", "pm.test('Has accountNumber', function() { var body = pm.response.json(); pm.expect(body.accountNumber).to.not.be.null; });"], "type": "text/javascript"}}]
+        },
+        {
+          "name": "A-02 Get Account by ID",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/api/v1/accounts/1", "host": ["{{baseUrl}}"], "path": ["api","v1","accounts","1"]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('Status is 200', function() { pm.response.to.have.status(200); });"], "type": "text/javascript"}}]
+        },
+        {
+          "name": "A-03 Get Accounts by Customer",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/api/v1/customers/1/accounts", "host": ["{{baseUrl}}"], "path": ["api","v1","customers","1","accounts"]}
+          }
+        },
+        {
+          "name": "A-04 Update Account Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"SUSPENDED\"\n}"},
+            "url": {"raw": "{{baseUrl}}/api/v1/accounts/1/status", "host": ["{{baseUrl}}"], "path": ["api","v1","accounts","1","status"]}
+          }
+        },
+        {
+          "name": "A-05 Get Account Balance",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/api/v1/accounts/1/balance", "host": ["{{baseUrl}}"], "path": ["api","v1","accounts","1","balance"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transaction",
+      "item": [
+        {
+          "name": "T-01 Deposit",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/transactions/deposit?accountId=1&amount=500",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","transactions","deposit"],
+              "query": [{"key": "accountId", "value": "1"}, {"key": "amount", "value": "500"}]
+            }
+          },
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('Status is 200', function() { pm.response.to.have.status(200); });"], "type": "text/javascript"}}]
+        },
+        {
+          "name": "T-02 Withdraw",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/transactions/withdraw?accountId=1&amount=200",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","transactions","withdraw"],
+              "query": [{"key": "accountId", "value": "1"}, {"key": "amount", "value": "200"}]
+            }
+          }
+        },
+        {
+          "name": "T-03 Transfer",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/transactions/transfer?fromId=1&toId=2&amount=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","transactions","transfer"],
+              "query": [{"key": "fromId", "value": "1"}, {"key": "toId", "value": "2"}, {"key": "amount", "value": "100"}]
+            }
+          }
+        },
+        {
+          "name": "T-04 Transaction History (with date range)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/accounts/1/transactions?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","accounts","1","transactions"],
+              "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}, {"key": "startDate", "value": "", "disabled": true}, {"key": "endDate", "value": "", "disabled": true}]
+            }
+          },
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('Status is 200', function() { pm.response.to.have.status(200); });"], "type": "text/javascript"}}]
+        },
+        {
+          "name": "T-05 Mini Statement",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/api/v1/accounts/1/mini-statement", "host": ["{{baseUrl}}"], "path": ["api","v1","accounts","1","mini-statement"]}
+          }
+        }
+      ]
+    }
+  ]
+}
